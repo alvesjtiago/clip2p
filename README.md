@@ -4,6 +4,10 @@ Decentralized peer-to-peer file sharing right from your menu bar. Powered by [Da
 
 ![Clip2p demo](https://clip2p-alvesjtiago.hashbase.io/clip2p.gif)
 
+## Downloads
+
+### [OSX](https://github.com/alvesjtiago/clip2p/releases/tag/v1.0.0)
+
 ## Building from source
 
 ```bash
