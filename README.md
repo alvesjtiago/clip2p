@@ -4,8 +4,19 @@ Decentralized peer-to-peer file sharing right from your menu bar. Powered by [Da
 
 ![Clip2p demo](https://clip2p-alvesjtiago.hashbase.io/clip2p.gif)
 
+## Building from source
+
+```bash
+git clone https://github.com/alvesjtiago/clip2p.git
+cd clip2p
+npm install
+npm run rebuild
+npm start
+```
+
 ## Credits
 
+Project created by [Tiago Alves](http://tiagoalves.me).
 Icon inspired by Setyo Ari Wibowo work.
 
 ## License
