@@ -20,6 +20,7 @@ app.on('ready', function(){
   // Get path to storage
   const userDataPath = app.getPath('userData');
   const dir = path.join(userDataPath, "datfiles")
+  const downloads_dir = path.join(userDataPath, "downloaded_datfiles")
   
   // If storage folder does not exist, create it
   if (!fs.existsSync(dir)){
@@ -90,6 +91,35 @@ app.on('ready', function(){
       clipboard.writeText(finalDatLink)
       console.log("clicked " + finalDatLink)
     });
+
+  });
+
+  appIcon.on('drop-text', function(event, text) {
+
+    var pathArray = text.split( '/' );
+    var protocol = pathArray[0];
+    var host = pathArray[2];
+    var baseUrl = protocol + '//' + host;
+    var path = text.replace(baseUrl,'');
+
+    if (protocol == "dat:") {
+    
+      Dat(downloads_dir, {key: baseUrl, sparse: true}, function (err, dat) {
+        dat.joinNetwork()
+
+        dat.archive.readFile(path, function (err, content) {
+          shell.openItem(downloads_dir + path)
+        })
+      })
+
+    } else {
+      // Launch notification with information about upload
+      let notification = new Notification({
+        title: "Wrong format",
+        body: 'The URL does not conform to the dat protocol.'
+      })
+      notification.show()
+    }
 
   });
 });
