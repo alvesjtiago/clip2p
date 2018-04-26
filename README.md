@@ -14,7 +14,6 @@ Decentralized peer-to-peer file sharing right from your menu bar. Powered by [Da
 git clone https://github.com/alvesjtiago/clip2p.git
 cd clip2p
 npm install
-npm run rebuild
 npm start
 ```
 
