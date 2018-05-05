@@ -1,11 +1,11 @@
 {
   "name": "Clip2p",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Decentralized peer-to-peer file sharing right from your menu bar.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package": "electron-packager . Clip2p --platform=darwin --version=1.0.1 --out=./dist --overwrite --icon='assets/images/icon.icns'",
+    "package": "electron-packager . Clip2p --platform=darwin --version=1.0.2 --out=./dist --overwrite --icon='assets/images/icon.icns'",
     "dmg": "electron-installer-dmg ./dist/Clip2p-darwin-x64/Clip2p.app Clip2p --out=./dist --overwrite --icon='assets/images/icon.icns'"
   },
   "keywords": [

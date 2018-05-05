@@ -5,30 +5,37 @@ const {
   Notification, 
   clipboard,
   shell
-} = require('electron');
+} = require('electron')
 
-const Dat = require('dat-node');
-const fs = require('fs');
-const fse = require('fs-extra');
-const path = require('path');
+const Dat = require('dat-node')
+const fs = require('fs')
+const path = require('path')
 
-var appIcon = null;
-var datInstance = null;
+const copy = require('./lib/copy.js')
+const datUrl = require('./lib/dat-url.js')
+
+var appIcon = null
+var datInstance = null
 
 app.on('ready', function(){
 
   // Get path to storage
-  const userDataPath = app.getPath('userData');
+  const userDataPath = app.getPath('userData')
   const dir = path.join(userDataPath, "datfiles")
-  const downloads_dir = path.join(userDataPath, "downloaded_datfiles")
+  const downloads_dir = path.join(userDataPath, "downloads")
   
   // If storage folder does not exist, create it
   if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
+    fs.mkdirSync(dir)
+  }
+
+  // If downloads folder does not exist, create it
+  if (!fs.existsSync(downloads_dir)){
+    fs.mkdirSync(downloads_dir)
   }
   
   // Menu bar icon
-  appIcon = new Tray(path.join(__dirname, '/assets/images/iconTemplate.png'));
+  appIcon = new Tray(path.join(__dirname, '/assets/images/iconTemplate.png'))
   
   var contextMenu = Menu.buildFromTemplate([
     {
@@ -39,8 +46,8 @@ app.on('ready', function(){
       label: 'Close',
       click () { app.quit() }
     }
-  ]);
-  appIcon.setContextMenu(contextMenu);
+  ])
+  appIcon.setContextMenu(contextMenu)
 
   // Hide dock menu
   app.dock.hide()
@@ -50,31 +57,19 @@ app.on('ready', function(){
     if (err) throw err
 
     datInstance = dat
-    console.log('My Dat link is: dat://' + dat.key.toString('hex'))
   })
 
   appIcon.on('drop-files', function(event, files) {
     
-    // Get first file that was dropped on menubar
+    // Copy first file to dat folder
     let file = files[0]
-    let extension = file.slice((file.lastIndexOf(".") - 1 >>> 0) + 2);
-    
-    // Final file path with extension
-    var fileName = Math.random().toString(36).slice(2)
-    if (extension) { fileName += "." + extension }
-    var finalPath = path.join(dir, fileName)
-    
-    // Copy file to dat location
-    fse.copySync(file, finalPath)
+    let fileName = copy(file, dir)
 
     // Import new file (or files that haven't been synced)
     datInstance.importFiles({watch: true})
 
     // Join network
     datInstance.joinNetwork()
-
-    // Log the link of the dat folder
-    console.log('My Dat link is: dat://' + datInstance.key.toString('hex'))
     
     // Final dat link to the file stored
     finalDatLink = 'dat://' + datInstance.key.toString('hex') + '/' + fileName
@@ -89,26 +84,24 @@ app.on('ready', function(){
     // Click to copy action
     notification.on('click', function(event) {
       clipboard.writeText(finalDatLink)
-      console.log("clicked " + finalDatLink)
-    });
+    })
 
-  });
+  })
 
   appIcon.on('drop-text', function(event, text) {
 
-    var pathArray = text.split( '/' );
-    var protocol = pathArray[0];
-    var host = pathArray[2];
-    var baseUrl = protocol + '//' + host;
-    var path = text.replace(baseUrl,'');
+    var url = datUrl(text)
 
-    if (protocol == "dat:") {
+    if (url.protocol == "dat:") {
+
+      var download_path = path.join(downloads_dir, url.host)
     
-      Dat(downloads_dir, {key: baseUrl, sparse: true}, function (err, dat) {
+      Dat(download_path, {key: url.baseUrl, sparse: true}, function (err, dat) {
         dat.joinNetwork()
 
-        dat.archive.readFile(path, function (err, content) {
-          shell.openItem(downloads_dir + path)
+        dat.archive.readFile(url.path, function (err, content) {
+          shell.openItem(download_path + url.path)
+          dat.close()
         })
       })
 
@@ -121,5 +114,5 @@ app.on('ready', function(){
       notification.show()
     }
 
-  });
-});
+  })
+})
